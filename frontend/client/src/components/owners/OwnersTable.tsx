@@ -1,11 +1,13 @@
 import * as React from 'react';
-import { Link } from 'react-router';
-import { IOwner } from '../../types/index';
+
+import { IOwner } from '../../types';
 
 const renderRow = (owner: IOwner) => (
   <tr key={owner.id}>
     <td>
-      <Link to={`/owners/${owner.id}`}>{owner.firstName} {owner.lastName}</Link>
+      <a href={`/owners/${owner.id}`}>
+        {owner.firstName} {owner.lastName}
+      </a>
     </td>
     <td className='hidden-sm hidden-xs'>{owner.address}</td>
     <td>{owner.city}</td>

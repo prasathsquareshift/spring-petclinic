@@ -1,9 +1,11 @@
 import * as React from 'react';
+
 import { IRouter, Link } from 'react-router';
-import { IOwner, IRouterContext } from '../../types/index';
-import { request, xhr_request } from '../../util/index';
-import { APMService, punish } from '../../main';
+import { IOwner, IRouterContext } from '../../types';
+import { url } from '../../util';
+
 import OwnersTable from './OwnersTable';
+
 
 interface IFindOwnersPageProps {
   location: HistoryModule.Location;
@@ -20,19 +22,13 @@ const getFilterFromLocation = (location) => {
 
 export default class FindOwnersPage extends React.Component<IFindOwnersPageProps, IFindOwnersPageState> {
   context: IRouterContext;
-  initial_render: boolean;
 
   static contextTypes = {
     router: React.PropTypes.object.isRequired
   };
 
-
-
   constructor(props) {
     super(props);
-    APMService.getInstance().startTransaction('FindOwnersPage');
-    punish();
-    this.initial_render = true;
     this.onFilterChange = this.onFilterChange.bind(this);
     this.submitSearchForm = this.submitSearchForm.bind(this);
 
@@ -41,22 +37,13 @@ export default class FindOwnersPage extends React.Component<IFindOwnersPageProps
     };
   }
 
-  componentDidUpdate() {
-    if (this.initial_render) {
-      APMService.getInstance().endSpan();
-      APMService.getInstance().endTransaction(true);
-    }
-    this.initial_render = false;
-  }
-
-  componentWillUnmount() {
-    APMService.getInstance().endSpan();
-    APMService.getInstance().endTransaction(false);
-  }
-
   componentDidMount() {
     const { filter } = this.state;
-    this.fetchData(filter);
+    if (typeof filter === 'string') {
+      // only load data on mount (initialy) if filter is specified
+      // i.e. lastName query param in uri was set
+      this.fetchData(filter);
+    }
   }
 
   componentWillReceiveProps(nextProps: IFindOwnersPageProps) {
@@ -80,31 +67,29 @@ export default class FindOwnersPage extends React.Component<IFindOwnersPageProps
 
   /**
    * Invoked when the submit button was pressed.
-   *
+   * 
    * This method updates the URL with the entered lastName. The change of the URL
    * leads to new properties and thus results in rerending
    */
   submitSearchForm() {
     const { filter } = this.state;
-    APMService.getInstance().startTransaction('FindOwnersPage: Filter');
+
     this.context.router.push({
       pathname: '/owners/list',
       query: { 'lastName': filter || '' }
     });
   }
 
-  /**
+  /** 
    * Actually loads data from the server
    */
   fetchData(filter: string) {
-    const query = encodeURIComponent(filter);
-    const requestUrl = filter && query !== '*' ? 'api/owners/*/lastname/' + query : 'api/owners';
-    xhr_request(requestUrl, (status, owners) =>  {
-      if (status < 400) {
-        APMService.getInstance().startSpan('Page Render', 'react');
-        this.setState({ owners });
-      }
-    });
+    const query = filter ? encodeURIComponent(filter) : '';
+    const requestUrl = url('api/owner/list?lastName=' + query);
+
+    fetch(requestUrl)
+      .then(response => response.json())
+      .then(owners => { this.setState({ owners }); });
   }
 
   render() {

@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { Link } from 'react-router';
-import { IOwner, IPet } from '../../types/index';
+import { IOwner, IPet } from '../../types';
 
 const VisitsTable = ({ownerId, pet}: { ownerId: number, pet: IPet }) => (
   <table className='table-condensed'>

@@ -1,13 +1,13 @@
 import * as React from 'react';
 
 import { IRouter, Link } from 'react-router';
-import { url, submitForm, xhr_submitForm } from '../../util/index';
-import { APMService, punish } from '../../main';
+import { url, submitForm } from '../../util';
+
 import Input from '../form/Input';
 import DateInput from '../form/DateInput';
 import SelectInput from '../form/SelectInput';
 
-import { IError, IOwner, IPetRequest, IEditablePet, IPet, IPetType, IPetTypeRequest, IRouterContext, ISelectOption } from '../../types/index';
+import { IError, IOwner, IPetRequest, IEditablePet, IPet, IPetType, IRouterContext, ISelectOption } from '../../types';
 
 interface IPetEditorProps {
   pet: IEditablePet;
@@ -28,56 +28,33 @@ export default class PetEditor extends React.Component<IPetEditorProps, IPetEdit
     router: React.PropTypes.object.isRequired
   };
 
-
   constructor(props) {
     super(props);
-    punish();
     this.onInputChange = this.onInputChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
+
     this.state = { editablePet: Object.assign({}, props.pet ) };
   }
 
   onSubmit(event) {
     event.preventDefault();
 
-    const { owner, pettypes } = this.props;
+    const { owner } = this.props;
     const { editablePet } = this.state;
-    let request: IPetRequest = {
-      id: null,
+
+    const request: IPetRequest = {
       birthDate: editablePet.birthDate,
       name: editablePet.name,
-      type: {
-        id: editablePet.type_id
-      },
-      owner: {
-        id: owner.id,
-        firstName: owner.firstName,
-        lastName: owner.lastName,
-        city: owner.city,
-        state: owner.state,
-        zipCode: owner.zipCode,
-        telephone: owner.telephone,
-        address: owner.address,
-        pets: null
-      },
-      visits: editablePet.visits
+      typeId: editablePet.typeId
     };
 
-    if (!editablePet.isNew) {
-      request.id = editablePet.id;
-    }
-
-    const url = editablePet.isNew ? 'api/pets' :  'api/pets/' + editablePet.id;
-    APMService.getInstance().startTransaction( editablePet.isNew ? 'CreatePet' : 'UpdatePet');
-
-    xhr_submitForm(editablePet.isNew ? 'POST' : 'PUT', url, request, (status, response) => {
-      if (status === 204 || status === 201) {
-        APMService.getInstance().endTransaction(true);
+    const url = editablePet.isNew ? '/api/owners/' + owner.id + '/pets' :  '/api/owners/' + owner.id + '/pets/' + editablePet.id;
+    submitForm(editablePet.isNew ? 'POST' : 'PUT', url, request, (status, response) => {
+      if (status === 204) {
         this.context.router.push({
           pathname: '/owners/' + owner.id
         });
       } else {
-        APMService.getInstance().endTransaction(false);
         console.log('ERROR?!...', response);
         this.setState({ error: response });
       }
@@ -94,6 +71,7 @@ export default class PetEditor extends React.Component<IPetEditorProps, IPetEdit
   render() {
     const { owner, pettypes } = this.props;
     const { editablePet, error } = this.state;
+
     const formLabel = editablePet.isNew ? 'Add Pet' : 'Update Pet';
 
     return (
@@ -108,7 +86,7 @@ export default class PetEditor extends React.Component<IPetEditorProps, IPetEdit
 
             <Input object={editablePet} error={error} label='Name' name='name' onChange={this.onInputChange} />
             <DateInput object={editablePet} error={error} label='Birth date' name='birthDate' onChange={this.onInputChange} />
-            <SelectInput object={editablePet} error={error} size={5} label='Type' name='type_id' options={pettypes} onChange={this.onInputChange} />
+            <SelectInput object={editablePet} error={error} label='Type' name='typeId' options={pettypes} onChange={this.onInputChange} />
           </div>
           <div className='form-group'>
             <div className='col-sm-offset-2 col-sm-10'>

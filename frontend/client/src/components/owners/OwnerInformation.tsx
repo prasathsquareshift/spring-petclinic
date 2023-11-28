@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { Link } from 'react-router';
-import { IOwner } from '../../types/index';
+import { IOwner } from '../../types';
 
 export default ({owner}: { owner: IOwner }) => (
   <section>

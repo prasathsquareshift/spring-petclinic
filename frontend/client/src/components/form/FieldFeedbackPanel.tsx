@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { IFieldError } from '../../types/index';
+import { IFieldError } from '../../types';
 
 export default ({valid, fieldError}: {valid: boolean, fieldError: IFieldError}) => {
     if (valid) {

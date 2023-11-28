@@ -31,9 +31,6 @@ export interface IConstraint {
 }
 
 export type IInputChangeHandler = (name: string, value: string, error: IFieldError) => void;
-export type IInputBlurHandler = (name: string, value: string) => void;
-export type IInputFetchHandler = (value: string, onSuccess: (data: any) => void ) => void;
-export type IInputValueHandler = (value: string ) => void;
 
 export interface ISelectOption {
   value: string|number;
@@ -44,7 +41,7 @@ export interface ISelectOption {
 
 interface IBaseEntity {
   id: number;
-  isNew?: boolean;
+  isNew: boolean;
 };
 
 interface INamedEntity extends IBaseEntity {
@@ -75,31 +72,19 @@ export interface IPet extends INamedEntity {
 // TODO
 export interface IEditablePet extends INamedEntity {
   birthDate?: string;
-  type: IPetType;
-  type_id?: number;
-  visits: IVisit[];
-  name: string;
-  owner: IOwner;
-}
-
-export interface IPetTypeRequest {
-  id: number;
+  typeId?: IPetTypeId;
 }
 
 export interface IPetRequest {
-  id?: number;
   name: string;
   birthDate?: string;
-  type: IPetTypeRequest;
-  visits: IVisit[];
-  owner: IOwner;
+  typeId: IPetTypeId;
 }
 
 export interface IOwner extends IPerson {
+
   address: string;
   city: string;
-  state?: string,
-  zipCode?: string,
   telephone: string;
   pets: IPet[];
 };

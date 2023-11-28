@@ -1,8 +1,9 @@
 import * as React from 'react';
 
-import { IOwner, IEditablePet, ISelectOption } from '../../types/index';
-import { request, request_promise, xhr_request_promise } from '../../util/index';
-import { APMService, punish } from '../../main';
+import { IOwner, IEditablePet, ISelectOption } from '../../types';
+
+import { url } from '../../util';
+
 import LoadingPanel from './LoadingPanel';
 import PetEditor from './PetEditor';
 
@@ -23,37 +24,15 @@ interface IEditPetPageState {
 
 export default class EditPetPage extends React.Component<IEditPetPageProps, IEditPetPageState> {
 
-  initial_render: boolean;
-
-  constructor() {
-    super();
-    this.initial_render = true;
-    APMService.getInstance().startTransaction('EditPetPage');
-    punish();
-  }
-
   componentDidMount() {
     const { params } = this.props;
-    const loadPetPromise = xhr_request_promise(`api/pets/${params.petId}`);
+
+    const fetchUrl = url(`/api/owners/${params.ownerId}/pets/${params.petId}`);
+
+    const loadPetPromise = fetch(fetchUrl).then(response => response.json());
+
     createPetEditorModel(this.props.params.ownerId, loadPetPromise)
-      .then(model => {
-            APMService.getInstance().startSpan('Page Render', 'react');
-            this.setState(model);
-          }
-      );
-  }
-
-  componentDidUpdate() {
-    if (this.initial_render) {
-      APMService.getInstance().endSpan();
-      APMService.getInstance().endTransaction(true);
-    }
-    this.initial_render = false;
-  }
-
-  componentWillUnmount() {
-    APMService.getInstance().endSpan();
-    APMService.getInstance().endTransaction(false);
+      .then(model => this.setState(model));
   }
 
   render() {

@@ -1,44 +1,27 @@
 import * as React from 'react';
 
-import { Router, Link } from 'react-router';
-import { request, xhr_request } from '../../util/index';
-import { IVet } from '../../types/index';
-import { APMService, punish } from '../../main';
+import { IRouter, Link } from 'react-router';
+import { url } from '../../util';
+
+import { IVet } from '../../types';
+
 interface IVetsPageState {
   vets: IVet[];
 }
 
 export default class VetsPage extends React.Component<void, IVetsPageState> {
-
-  initial_render: boolean;
   constructor() {
     super();
-    this.initial_render = true;
-    APMService.getInstance().startTransaction('VetsPage');
-    punish();
+
     this.state = { vets: [] };
   }
 
   componentDidMount() {
-    xhr_request('api/vets', (status, vets) =>  {
-      if (status < 400) {
-        APMService.getInstance().startSpan('Page Render', 'react');
-        this.setState({ vets });
-      }
-    });
-  }
+    const requestUrl = url('api/vets');
 
-  componentWillUnmount() {
-    APMService.getInstance().endSpan();
-    APMService.getInstance().endTransaction(false);
-  }
-
-  componentDidUpdate() {
-    if (this.initial_render) {
-      APMService.getInstance().endSpan();
-      APMService.getInstance().endTransaction(true);
-    }
-    this.initial_render = false;
+    fetch(requestUrl)
+      .then(response => response.json())
+      .then(vets => { console.log('vets', vets); this.setState({ vets }); });
   }
 
   render() {

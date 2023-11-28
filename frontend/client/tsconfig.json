@@ -7,10 +7,8 @@
     "removeComments": true,
     "target": "ES6",
     "allowJs": true,
-    "outDir": "dist",
-    "sourceMap": true,
-    "allowSyntheticDefaultImports": true,
-    "moduleResolution": "node"
+    "outDir": "public/dist",
+    "sourceMap": true
   },
   "exclude": [
     "node_modules",

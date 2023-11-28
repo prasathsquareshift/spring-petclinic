@@ -4,7 +4,7 @@ import { shallow } from 'enzyme';
 
 import { NotEmpty } from '../../../../src/components/form/Constraints';
 import FieldFeedbackPanel from '../../../../src/components/form/FieldFeedbackPanel';
-import { IInputChangeHandler, IError, IConstraint } from '../../../../src/types/index';
+import { IInputChangeHandler, IError, IConstraint } from '../../../../src/types';
 
 import Input from '../../../../src/components/form/Input';
 

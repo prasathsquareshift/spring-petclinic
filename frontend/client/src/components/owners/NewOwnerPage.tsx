@@ -1,7 +1,7 @@
 import * as React from 'react';
 import OwnerEditor from './OwnerEditor';
 
-import { IOwner } from '../../types/index';
+import { IOwner } from '../../types';
 
 const newOwner = (): IOwner => ({
   id: null,

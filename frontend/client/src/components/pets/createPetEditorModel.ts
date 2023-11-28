@@ -1,21 +1,20 @@
-import { IPetType, ISelectOption } from '../../types/index';
-import { url, submitForm } from '../../util/index';
-import { request, request_promise, xhr_request_promise } from '../../util/index';
+import { IPetType, ISelectOption } from '../../types';
+import { url, submitForm } from '../../util';
+
 const toSelectOptions = (pettypes: IPetType[]): ISelectOption[] => pettypes.map(pettype => ({ value: pettype.id, name: pettype.name }));
-import { APMService } from '../../main';
 
 export default (ownerId: string, petLoaderPromise: Promise<any>): Promise<any> => {
   return Promise.all(
-    [
-      xhr_request_promise('api/pettypes').then(toSelectOptions),
-      xhr_request_promise('api/owners/' + ownerId),
+    [fetch(url('/api/pettypes'))
+      .then(response => response.json())
+      .then(toSelectOptions),
+    fetch(url('/api/owner/' + ownerId))
+      .then(response => response.json()),
       petLoaderPromise,
     ]
-  ).then(results => {
-    return {
-      pettypes: results[0],
-      owner: results[1],
-      pet: results[2]
-    };
-  });
+  ).then(results => ({
+    pettypes: results[0],
+    owner: results[1],
+    pet: results[2]
+  }));
 };
